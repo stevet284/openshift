@@ -1,0 +1,43 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+timeout=600
+openshift_disable_check=docker_image_availability
+# If ansible_ssh_user is not root, ansible_become must be set to true
+ansible_become=false
+#openshift_master_default_subdomain=app.192.168.131.85.nip.io
+openshift_master_default_subdomain=192.168.229.129.nip.io
+deployment_type=origin
+openshift_image_tag="v3.11.0"
+openshift_release="3.11.0"
+openshift_pkg_version="-3.11.0"
+
+[nodes:vars]
+openshift_disable_check=disk_availability,memory_availability,docker_storage
+[masters:vars]
+openshift_disable_check=disk_availability,memory_availability,docker_storage
+# uncomment the following to enable htpasswd authentication; defaults to DenyAllPasswordIdentityProvider
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+
+## Hawkular vars:
+#openshift_metrics_install_metrics=True
+#openshift_metrics_hawkular_hostname=hawkular-metrics.app.172.31.124.229.nip.io
+
+# host group for masters
+[masters]
+master.192.168.229.129.nip.io
+
+# host group for etcd
+[etcd]
+master.192.168.229.129.nip.io openshift_ip=10.0.2.15
+
+# host group for nodes, includes region info
+[nodes]
+master.192.168.229.129.nip.io openshift_node_group_name='node-config-all-in-one' openshift_schedulable=true
+
