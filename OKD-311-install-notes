@@ -1,0 +1,75 @@
+
+Install notes:
+
+I have built clusters in the Linuxacademy playground, but these are time limited.
+I prefer VMs on the laptop.
+
+I've recently moved to using Microsoft hyper-v virtualition, I prefer it over virtualbox, the networking is simpler, 
+a single nic gets to the internet but can also be used for ssh and can communicate with other VMs.
+
+My VM has 6GB ram, this isn't really enough, but it works. 
+
+Centos7 server install.
+
+set hostname to use free dns name:
+
+# hostnamectl set-hostname master.192.168.229.129.nip.io
+
+# yum update -y
+
+Install Epel and git:
+
+# yum install epel-release git -y
+
+Install docker from epel
+
+# yum install docker -y
+
+Install this version of ansible (not the one from Epel)
+
+# yum install https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/ansible-2.7.10-1.el7.ans.noarch.rpm -y
+
+Optional: Add separate disk and VG for docker
+  # echo VG=docker-vg >> /etc/sysconfig/docker-storage-setup
+
+# systemctl enable docker --now
+
+install openshift from github:
+
+# cd /opt
+
+# git clone https://github.com/openshift/openshift-ansible.git
+
+# cd /opt/openshift-ansible/
+
+# git checkout release-3.11  
+
+
+create /etc/ansible/hosts - see 3.11 host file example.
+
+Update master hostname and default subdomain to match correct hostname:
+
+openshift_master_default_subdomain=192.168.229.129.nip.io
+[nodes]
+master.192.168.229.129.nip.io openshift_node_group_name='node-config-all-in-one' openshift_schedulable=true
+
+Create an ssh key and copy to autorized_keys so that the server can ssh to itself.
+# ssh-keygen -t rsa
+# cp -p /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
+
+
+run the playbooks:
+
+
+# ansible-playbook  /opt/openshift-ansible/playbooks/prerequisites.yml
+# ansible-playbook  /opt/openshift-ansible/playbooks/deploy_cluster.yml
+
+If all green, you should now have a working cluster:
+
+# oc get nodes
+
+For the GUI, you probably need to set an admin password:
+
+# htpasswd -b /etc/origin/master/htpasswd admin admin
+
+CONSOLE:  https://master.192.168.229.129.nip.io:8443/
