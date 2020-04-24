@@ -9,6 +9,16 @@ a single nic gets to the internet but can also be used for ssh and can communica
 
 My VM has 6GB ram, this isn't really enough, but it works. 
 
+The only issue I have is the IP address keeps changing, so need to reconfigure to use a static IP:
+
+BOOTPROTO=static
+IPADDR=192.168.229.129
+PREFIX=24
+GATEWAY=192.168.229.2
+DNS1=192.168.229.2
+NM_MANAGED=YES
+
+
 Centos7 server install.
 
 set hostname to use free dns name:
